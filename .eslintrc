@@ -1,0 +1,13 @@
+{
+  "root": true,
+  "env": {
+    "node": true
+  },
+  "parser": "vue-eslint-parser",
+  "extends": ["plugin:vue/essential", "eslint:recommended"],
+  "parserOptions": {
+    "parser": "@babel/eslint-parser"
+  },
+  "plugins": ["vue"],
+  "rules": {}
+}
