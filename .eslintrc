@@ -4,10 +4,14 @@
     "node": true
   },
   "parser": "vue-eslint-parser",
-  "extends": ["plugin:vue/essential", "eslint:recommended"],
+  "extends": [
+    "plugin:vue/essential",
+    "eslint:recommended",
+    "eslint-config-prettier"
+  ],
   "parserOptions": {
     "parser": "@babel/eslint-parser"
   },
-  "plugins": ["vue"],
+  "plugins": ["vue", "prettier"],
   "rules": {}
 }

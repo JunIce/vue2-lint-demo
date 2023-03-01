@@ -1,0 +1,9 @@
+.git
+.svn
+.idea
+node_modules
+
+lib
+oss
+plop
+server
