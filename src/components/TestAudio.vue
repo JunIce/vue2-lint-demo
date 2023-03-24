@@ -1,6 +1,7 @@
 <template>
   <div>
-    <input type="file" ref="file" @change="getFileBlob" />
+    <!-- <audio ref="audioRef"></audio> -->
+    <button @click="play">play</button>
   </div>
 </template>
 
@@ -10,63 +11,60 @@ import { defineComponent, onMounted, ref } from "@vue/composition-api";
 export default defineComponent({
   name: "DemoInput",
   setup() {
-    const file = ref(null);
-
-    const source = ref(document.createElement("audio"));
+    const audioRef = ref(document.createElement("audio"));
 
     const mediaSource = new MediaSource();
-    const mimeCodec = `audio/mp4;`;
-
-    source.value.src = URL.createObjectURL(mediaSource);
+    let mimeCodec = `audio/mpeg`;
 
     onMounted(() => {
+      audioRef.value.muted = true;
+      audioRef.value.autoplay = true;
+      audioRef.value.controls = true;
+      audioRef.value.src = URL.createObjectURL(mediaSource);
       mediaSource.addEventListener("sourceopen", onSourceOpen);
     });
 
-    function getFileBlob() {
-      const blob = URL.createObjectURL(file.value.files[0]);
-      source.value.src = blob;
-      source.value.play();
-    }
-
-    function _getFileBlob() {
+    const getRemoteFile = () => {
       const sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
 
-      fileToBlob(file.value.files[0], async (blob) => {
-        var buffer = await blob.arrayBuffer();
-        console.log(buffer);
-        sourceBuffer.appendBuffer(buffer);
-        source.value.play();
+      fetch("http://127.0.0.1:8081/1111.mp3", {})
+        .then((res) => res.arrayBuffer())
+        .then((res) => {
+          console.log("res", res);
+          sourceBuffer.addEventListener("updateend", function (_) {
+            mediaSource.endOfStream();
 
-        sourceBuffer.addEventListener("updateend", function (_) {
-          mediaSource.endOfStream();
-          //   video.play();
-          //console.log(mediaSource.readyState); // ended
+            audioRef.value.play();
+            audioRef.value.muted = false;
+
+            console.log(mediaSource.readyState); // ended
+          });
+          sourceBuffer.addEventListener("error", function (error) {
+            console.log(error);
+          });
+
+          sourceBuffer.appendBuffer(res);
         });
-      });
+    };
+
+    function play() {
+      getRemoteFile();
     }
 
-    function fileToBlob(file, cb) {
-      let reader = new FileReader();
-      reader.addEventListener("load", (e) => {
-        let base64 = e.target.result;
-        let blob = new Blob([base64], { type: file.type });
-        console.log("Blob对象", blob);
-        cb(blob);
-      });
-      reader.readAsDataURL(file);
-    }
-
-    function onSourceOpen(e) {
-      console.log(e);
+    function onSourceOpen() {
+      //
     }
 
     return {
-      file,
-      getFileBlob,
+      audioRef,
+      play,
     };
   },
 });
 </script>
 
-<style></style>
+<style>
+audio {
+  height: 100px;
+}
+</style>
