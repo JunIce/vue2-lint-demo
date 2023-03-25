@@ -41,6 +41,9 @@ export default defineComponent({
 
     function onSourceOpen() {
       //
+      if (MediaSource.isTypeSupported(mimeCodec) === false) {
+        throw Error("mimeCodec not support")
+      }
       sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
       sourceBuffer.addEventListener("updateend", function (_) {
         mediaSource.endOfStream();
