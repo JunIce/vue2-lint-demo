@@ -15,6 +15,7 @@ export default defineComponent({
 
     const mediaSource = new MediaSource();
     let mimeCodec = `audio/mpeg`;
+    let sourceBuffer
 
     onMounted(() => {
       audioRef.value.muted = true;
@@ -25,23 +26,10 @@ export default defineComponent({
     });
 
     const getRemoteFile = () => {
-      const sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-
       fetch("http://127.0.0.1:8081/1111.mp3", {})
         .then((res) => res.arrayBuffer())
         .then((res) => {
           console.log("res", res);
-          sourceBuffer.addEventListener("updateend", function (_) {
-            mediaSource.endOfStream();
-
-            audioRef.value.play();
-            audioRef.value.muted = false;
-
-            console.log(mediaSource.readyState); // ended
-          });
-          sourceBuffer.addEventListener("error", function (error) {
-            console.log(error);
-          });
 
           sourceBuffer.appendBuffer(res);
         });
@@ -53,6 +41,18 @@ export default defineComponent({
 
     function onSourceOpen() {
       //
+      sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+      sourceBuffer.addEventListener("updateend", function (_) {
+        mediaSource.endOfStream();
+
+        audioRef.value.play();
+        audioRef.value.muted = false;
+
+        console.log(mediaSource.readyState); // ended
+      });
+      sourceBuffer.addEventListener("error", function (error) {
+        console.log(error);
+      });
     }
 
     return {
