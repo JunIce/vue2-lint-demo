@@ -1,6 +1,7 @@
 <template>
   <div>
     <!-- <audio ref="audioRef"></audio> -->
+    <input type="file" ref="fileRef">
     <button @click="play">play</button>
   </div>
 </template>
@@ -11,6 +12,7 @@ import { defineComponent, onMounted, ref } from "@vue/composition-api";
 export default defineComponent({
   name: "DemoInput",
   setup() {
+    const fileRef = ref(null)
     const audioRef = ref(document.createElement("audio"));
 
     const mediaSource = new MediaSource();
@@ -36,7 +38,22 @@ export default defineComponent({
     };
 
     function play() {
+      // remote
       getRemoteFile();
+      // local read
+      // readFile();
+    }
+
+    function readFile() {
+      const file = fileRef.value.files[0];
+
+      const reader = new FileReader();
+
+      reader.onloadend = function(e) {
+        sourceBuffer.appendBuffer(e.target.result);
+      }
+
+      reader.readAsArrayBuffer(file)
     }
 
     function onSourceOpen() {
@@ -59,6 +76,7 @@ export default defineComponent({
     }
 
     return {
+      fileRef,
       audioRef,
       play,
     };
